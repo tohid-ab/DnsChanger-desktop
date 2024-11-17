@@ -1,0 +1,14 @@
+.idea
+.venv
+.DS_Store
+*.pyc
+__pycache__
+*.sqlite3
+media
+static
+/app/.coverage
+/app/htmlcov
+/app/schema.json
+.idea/*
+env
+*.db
