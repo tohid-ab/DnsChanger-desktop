@@ -61,10 +61,22 @@ def on_ok_click():
     set_dns(dns_one, dns_two)
 
 
+def on_dropdown_change(event):
+    """
+    Handle the dropdown change event to prefill DNS fields.
+    """
+    selected = dropdown.get()
+    if selected == "Shekan":
+        dns_one_entry.delete(0, tk.END)
+        dns_two_entry.delete(0, tk.END)
+        dns_one_entry.insert(0, "178.22.122.100")
+        dns_two_entry.insert(0, "185.51.200.2")
+
+
 # Create the main application window
 root = tk.Tk()
 root.title("DNS Setter")
-root.geometry("400x250")
+root.geometry("400x300")
 root.resizable(False, False)
 
 # Label and input field for DNS One
@@ -81,6 +93,16 @@ dns_two_label.grid(row=1, column=0, padx=10, pady=10)
 dns_two_entry = tk.Entry(root, width=30, font=("Helvetica", 10))
 dns_two_entry.grid(row=1, column=1, padx=10, pady=10)
 
+# Dropdown for predefined DNS servers
+dropdown_label = tk.Label(root, text="Select Preset DNS:", font=("Helvetica", 12))
+dropdown_label.grid(row=2, column=0, padx=10, pady=10)
+
+dns_presets = ["None", "Shekan"]
+dropdown = ttk.Combobox(root, values=dns_presets, state="readonly", font=("Helvetica", 10))
+dropdown.grid(row=2, column=1, padx=10, pady=10)
+dropdown.set("None")  # Default value
+dropdown.bind("<<ComboboxSelected>>", on_dropdown_change)
+
 # Style for the buttons
 style = ttk.Style()
 style.configure("Rounded.TButton", font=("Helvetica", 12, "bold"), foreground="#000000", background="#d6d6d6", padding=10,
@@ -88,11 +110,11 @@ style.configure("Rounded.TButton", font=("Helvetica", 12, "bold"), foreground="#
 
 # OK button
 ok_button = ttk.Button(root, text="Set DNS", command=on_ok_click, style="Rounded.TButton")
-ok_button.grid(row=2, column=0, columnspan=2, pady=10, ipadx=20)
+ok_button.grid(row=3, column=0, columnspan=2, pady=10, ipadx=20)
 
 # Reset button
 reset_button = ttk.Button(root, text="Reset DNS", command=reset_dns, style="Rounded.TButton")
-reset_button.grid(row=3, column=0, columnspan=2, pady=10, ipadx=20)
+reset_button.grid(row=4, column=0, columnspan=2, pady=10, ipadx=20)
 
 # Run the application
 root.mainloop()
