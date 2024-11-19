@@ -1,37 +1,98 @@
 import tkinter as tk
+from tkinter import ttk
+import subprocess
+from tkinter import messagebox
 
 
-def calculate(*args):
+def set_dns(dns1, dns2):
+    """
+    Set the primary and secondary DNS servers for the active network interface.
+    """
     try:
-        value = f'{dns1.get()}\n{dns2.get()}'
-        response.set(value)
-    except ValueError:
-        pass
+        # Get the name of the active network interface
+        interface_name = subprocess.check_output(
+            'netsh interface show interface | findstr "Connected"',
+            shell=True, text=True
+        ).split()[-1]
 
+        # Set the primary DNS
+        subprocess.run(f'netsh interface ip set dns "{interface_name}" static {dns1}', shell=True, check=True)
+
+        # Set the secondary DNS
+        subprocess.run(f'netsh interface ip add dns "{interface_name}" {dns2} index=2', shell=True, check=True)
+
+        messagebox.showinfo("Success", "DNS settings updated successfully!")
+    except subprocess.CalledProcessError as e:
+        # Show an error message if the command fails
+        messagebox.showerror("Error", f"Failed to set DNS:\n{e.stderr}")
+
+
+def reset_dns():
+    """
+    Reset the DNS settings to default (Dynamic or DHCP).
+    """
+    try:
+        # Get the name of the active network interface
+        interface_name = subprocess.check_output(
+            'netsh interface show interface | findstr "Connected"',
+            shell=True, text=True
+        ).split()[-1]
+
+        # Reset DNS to DHCP
+        subprocess.run(f'netsh interface ip set dns "{interface_name}" dhcp', shell=True, check=True)
+        messagebox.showinfo("Success", "DNS settings reset to default (DHCP).")
+    except subprocess.CalledProcessError as e:
+        # Show an error message if the command fails
+        messagebox.showerror("Error", f"Failed to reset DNS:\n{e.stderr}")
+
+
+def on_ok_click():
+    """
+    Handle the OK button click event to set the DNS servers.
+    """
+    dns_one = dns_one_entry.get()
+    dns_two = dns_two_entry.get()
+
+    if not dns_one or not dns_two:
+        # Show a warning if any DNS field is empty
+        messagebox.showwarning("Input Error", "Both DNS fields must be filled!")
+        return
+
+    set_dns(dns_one, dns_two)
+
+
+# Create the main application window
 root = tk.Tk()
-root.title("Feet to Meters")
-root.geometry("800x400")
-
-# to make the GUI dimensions fixed
+root.title("DNS Setter")
+root.geometry("400x250")
 root.resizable(False, False)
 
-dns1 = tk.StringVar()
-dns_one = tk.Entry(root, width=20, textvariable=dns1, justify=tk.CENTER)
-dns_one.grid(column=1, row=1, padx=10, pady=10)
+# Label and input field for DNS One
+dns_one_label = tk.Label(root, text="DNS One:", font=("Helvetica", 12))
+dns_one_label.grid(row=0, column=0, padx=10, pady=10)
 
-dns2 = tk.StringVar()
-dns_two = tk.Entry(root, width=20, textvariable=dns2, justify=tk.CENTER)
-dns_two.grid(column=1, row=2, padx=10, pady=10)
+dns_one_entry = tk.Entry(root, width=30, font=("Helvetica", 10))
+dns_one_entry.grid(row=0, column=1, padx=10, pady=10)
 
-response = tk.StringVar()
-tk.Label(root, textvariable=response, bg='green', fg="white").grid(column=0, row=3)
+# Label and input field for DNS Two
+dns_two_label = tk.Label(root, text="DNS Two:", font=("Helvetica", 12))
+dns_two_label.grid(row=1, column=0, padx=10, pady=10)
 
-tk.Button(root, text="OK", command=calculate).grid(column=0, row=4)
+dns_two_entry = tk.Entry(root, width=30, font=("Helvetica", 10))
+dns_two_entry.grid(row=1, column=1, padx=10, pady=10)
 
-tk.Label(root, text="First DNS").grid(column=0, row=1)
-tk.Label(root, text="Second DNS").grid(column=0, row=2)
+# Style for the buttons
+style = ttk.Style()
+style.configure("Rounded.TButton", font=("Helvetica", 12, "bold"), foreground="#000000", background="#d6d6d6", padding=10,
+                borderwidth=3, relief="raised")
 
+# OK button
+ok_button = ttk.Button(root, text="Set DNS", command=on_ok_click, style="Rounded.TButton")
+ok_button.grid(row=2, column=0, columnspan=2, pady=10, ipadx=20)
 
-dns_one.focus_force()
-root.bind("<Return>\n", calculate)
+# Reset button
+reset_button = ttk.Button(root, text="Reset DNS", command=reset_dns, style="Rounded.TButton")
+reset_button.grid(row=3, column=0, columnspan=2, pady=10, ipadx=20)
+
+# Run the application
 root.mainloop()
