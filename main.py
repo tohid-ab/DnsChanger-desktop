@@ -72,6 +72,17 @@ def on_dropdown_change(event):
         dns_one_entry.insert(0, "178.22.122.100")
         dns_two_entry.insert(0, "185.51.200.2")
 
+    elif selected == "Google":
+        dns_one_entry.delete(0, tk.END)
+        dns_two_entry.delete(0, tk.END)
+        dns_one_entry.insert(0, "8.8.8.8")
+        dns_two_entry.insert(0, "8.8.4.4")
+
+    elif selected == "ClaudFlare":
+        dns_one_entry.delete(0, tk.END)
+        dns_two_entry.delete(0, tk.END)
+        dns_one_entry.insert(0, "1.1.1.1")
+        dns_two_entry.insert(0, "1.0.0.1")
 
 # Create the main application window
 root = tk.Tk()
@@ -97,7 +108,7 @@ dns_two_entry.grid(row=1, column=1, padx=10, pady=10)
 dropdown_label = tk.Label(root, text="Select Preset DNS:", font=("Helvetica", 12))
 dropdown_label.grid(row=2, column=0, padx=10, pady=10)
 
-dns_presets = ["None", "Shekan"]
+dns_presets = ["None", "Shekan", "Google", "ClaudFlare"]
 dropdown = ttk.Combobox(root, values=dns_presets, state="readonly", font=("Helvetica", 10))
 dropdown.grid(row=2, column=1, padx=10, pady=10)
 dropdown.set("None")  # Default value
